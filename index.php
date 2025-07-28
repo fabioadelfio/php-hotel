@@ -40,6 +40,22 @@ $hotels = [
 
 ];
 
+$filtered_hotels = [];
+$filter_parking = false;
+$vote_min = 0;
+
+$filter_parking = isset($_GET["parking"]);
+
+$vote_min = isset($_GET['vote']) ? (int)$_GET['vote'] : 0;
+
+foreach ($hotels as $hotel) {
+    $parking_filter = !$filter_parking || $hotel['parking'] === true;
+    $vote_filter = $hotel['vote'] >= $vote_min;
+    if ($parking_filter && $vote_filter) {
+        $filtered_hotels[] = $hotel;
+    }
+}
+
 ?>
 
 
@@ -53,9 +69,23 @@ $hotels = [
     <title>PHP Hotel</title>
 </head>
 
-<body>
+<body class="bg-primary container">
 
-    <h1>Lista Hotel</h1>
+    <h1 class="text-center p-5 fw-bold">LISTA HOTEL</h1>
+
+    <form class="py-3 fs-4 justify-content-between" action="index.php" method="GET">
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="checkbox" name="parking" value="1" id="parking"
+                <?php if ($filter_parking) echo 'checked'; ?>>
+            <label class="form-check-label" for="parking">Solo con parcheggio</label>
+        </div>
+        <div class="form-group d-inline-block ms-3">
+            <label for="vote">Voto minimo:</label>
+            <input class="form-control d-inline-block w-auto" type="number" name="vote" id="vote" min="1" max="5"
+                value="<?php echo isset($_GET['vote']) ? $_GET['vote'] : ''; ?>">
+        </div>
+        <button type="submit" class="btn btn-light btn-sm fw-bold fs-5">Filtra</button>
+    </form>
 
     <table class="table table-dark">
         <thead>
@@ -70,9 +100,9 @@ $hotels = [
         <tbody>
 
             <?php
-            foreach ($hotels as $hotel) {
+            foreach ($filtered_hotels as $hotel) {
                 echo "<tr>";
-                echo "<td>" . $hotel['name'] . "</td>";
+                echo "<th>" . $hotel['name'] . "</th>";
                 echo "<td>" . $hotel['description'] . "</td>";
                 echo "<td>" . ($hotel['parking'] ? 'Sì' : 'No') . "</td>";
                 echo "<td>" . $hotel['vote'] . "</td>";
